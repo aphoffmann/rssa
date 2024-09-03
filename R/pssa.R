@@ -163,6 +163,20 @@ decompose.pssa <- function(x,
     S <- PRIMME::svds(pA, NSvals = neig, m = nrow(h), n = ncol(h), isreal = TRUE, ...)
     .set.decomposition(x,
                        sigma = c(ssigma, S$d), U = cbind(sU, S$u), V = cbind(sV, S$v))
+  } else if (identical(x$svd.method, "irlba")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `irlba'")
+    h <- .get.or.create.phmat(x)
+    S <- irlba::irlba(h, nv = neig, ...)
+    .set.decomposition(x,
+                       sigma = c(ssigma, S$d), U = cbind(sU, S$u), V = cbind(sV, S$v))
+  } else if (identical(x$svd.method, "rsvd")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `rsvd'")
+    h <- .get.or.create.phmat(x)
+    S <- irlba::svdr(h, k = neig, ...)
+    .set.decomposition(x,
+                       sigma = c(ssigma, S$d), U = cbind(sU, S$u), V = cbind(sV, S$v))
   } else
     stop("unsupported SVD method")
 

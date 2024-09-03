@@ -253,6 +253,18 @@ decompose.ssa <- function(x,
     pA <-function(x, trans) if (identical(trans, "c")) crossprod(h, x) else h %*% x
     S <- PRIMME::svds(pA, NSvals = neig, m = nrow(h), n = ncol(h), isreal = TRUE, ...)
     .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
+  } else if (identical(x$svd.method, "irlba")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `irlba'")
+    h <- .get.or.create.trajmat(x)
+    S <- irlba::irlba(h, nv = neig, ...)
+    .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
+  } else if (identical(x$svd.method, "rsvd")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `rsvd'")
+    h <- .get.or.create.trajmat(x)
+    S <- irlba::svdr(h, k = neig, ...)
+    .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
   } else
     stop("unsupported SVD method")
 

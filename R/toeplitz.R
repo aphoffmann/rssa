@@ -111,6 +111,20 @@ decompose.toeplitz.ssa <- function(x,
     S <- PRIMME::svds(pA, NSvals = neig, m = nrow(h), n = ncol(h), isreal = TRUE, ...)
     U <- S$u
     lambda <- NULL
+  } else if (identical(x$svd.method, "irlba")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `irlba'")
+    h <- .get.or.create.tmat(x)
+    S <- irlba::irlba(h, nv = neig, ...)
+    U <- S$u
+    lambda <- NULL
+  } else if (identical(x$svd.method, "rsvd")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `rsvd'")
+    h <- .get.or.create.tmat(x)
+    S <- irlba::svdr(h, k = neig, ...)
+    U <- S$u
+    lambda <- NULL
   } else
     stop("unsupported SVD method")
 

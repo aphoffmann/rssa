@@ -46,6 +46,37 @@
 
 .get.or.create.trajmat.cssa <- .get.or.create.chmat
 
+
+.cchmat <- function(x, fft.plan) {
+  N <- x$length; L <- x$window; K <- N - L + 1
+  F <- .F(x)
+
+  R <- new.hmat(Re(F), L = L, fft.plan = fft.plan)
+  I <- new.hmat(Im(F), L = L, fft.plan = fft.plan)
+
+  matmul <- function(x) {
+    rX <- Re(x); iX <- Im(x)
+
+      (hmatmul(R, rX, transposed = FALSE) - hmatmul(I, iX, transposed = FALSE)) +
+   1i*(hmatmul(I, rX, transposed = FALSE) + hmatmul(R, iX, transposed = FALSE))
+  }
+
+  tmatmul <- function(x) {
+    rX <- Re(x); iX <- Im(x)
+
+       (hmatmul(R, rX, transposed = TRUE) + hmatmul(I, iX, transposed = TRUE)) +
+    1i*(hmatmul(R, iX, transposed = TRUE) - hmatmul(I, rX, transposed = TRUE))
+  }
+
+  extmat(matmul, tmatmul, nrow = L, ncol = K)
+}
+
+.get.or.create.cchmat <- function(x) {
+  .get.or.create(x, "chmat",
+                 .cchmat(x, fft.plan = .get.or.create.cfft.plan(x)))
+}
+
+
 decompose.cssa <- function(x,
                            neig = NULL,
                            ...,
@@ -104,6 +135,24 @@ decompose.cssa <- function(x,
         }
     }
     S <- PRIMME::svds(A, NSvals = neig, m = nrow(R), n = ncol(R), isreal = FALSE, ...)
+    .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
+  } else if (identical(x$svd.method, "irlba")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+      stop("irlba package is required for SVD method `irlba'")
+
+    ## Uncomment after https://github.com/bwlewis/irlba/issues/73 is fixed
+    # h <- .get.or.create.cchmat(x)
+    h <- hankel(.F(x), L = x$window)
+    S <- irlba::irlba(h, nv = neig, ...)
+    .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
+  } else if (identical(x$svd.method, "rsvd")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+      stop("irlba package is required for SVD method `rsvd'")
+
+    ## Uncomment after https://github.com/bwlewis/irlba/issues/73 is fixed
+    # h <- .get.or.create.cchmat(x)
+    h <- hankel(.F(x), L = x$window)
+    S <- irlba::svdr(h, k = neig, ...)
     .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
   } else
     stop("unsupported SVD method")

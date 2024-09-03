@@ -160,6 +160,18 @@ decompose.wossa <- function(x,
     pA <-function(x, trans) if (identical(trans, "c")) crossprod(h, x) else h %*% x
     S <- PRIMME::svds(pA, NSvals = neig, m = nrow(h), n = ncol(h), isreal = TRUE, ...)
     oU <- S$u; oV <- S$v; osigma <- S$d
+  } else if (identical(x$svd.method, "irlba")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `irlba'")
+    h <- .get.or.create.whmat(x)
+    S <- irlba::irlba(h, nv = neig, ...)
+    oU <- S$u; oV <- S$v; osigma <- S$d
+  } else if (identical(x$svd.method, "rsvd")) {
+    if (!requireNamespace("irlba", quietly = TRUE))
+        stop("irlba package is required for SVD method `rsvd'")
+    h <- .get.or.create.whmat(x)
+    S <- irlba::svdr(h, k = neig, ...)
+    oU <- S$u; oV <- S$v; osigma <- S$d
   } else
     stop("unsupported SVD method")
 
