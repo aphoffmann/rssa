@@ -7,7 +7,7 @@ context("2dSSA");
 test_that("simple 2s-ssa test", {
   load(system.file("extdata", "2dssa.testdata.rda", package = "Rssa"));
 
-  for (svd.method in c("nutrlan", "propack")) {
+  for (svd.method in c("nutrlan", "propack", "rspectra", "primme")) {
     ss <- ssa(field, kind = "2d-ssa", L = L, neig = 20, svd.method = svd.method);
     cur.rec <- reconstruct(ss, groups = groups);
 
@@ -20,7 +20,7 @@ test_that("2d SSA works correctly with finite rank fields", {
 # Artificial field for 2dSSA
 mx <- outer(1:50, 1:50,
             function(i, j) sin(2*pi * i/17) * cos(2*pi * j/7) + exp(i/25 - j/20))
-for (svd.method in c("eigen", "svd", "nutrlan", "propack")) {
+for (svd.method in c("eigen", "svd", "nutrlan", "propack", "rspectra", "primme")) {
   # Decompose
   s <- ssa(mx, kind = "2d-ssa", neig = 5, svd.method = svd.method)
   # Reconstruct

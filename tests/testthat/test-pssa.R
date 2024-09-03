@@ -7,7 +7,7 @@ test_that("PSSA with no any projections is just SSA", {
   set.seed(1)
   Ns <- c(100, 200, 500, 1000)
   Ls <- c(70, 100, 200, 500)
-  svd.methods <- c("propack", "nutrlan", "svd", "eigen")
+  svd.methods <- c("propack", "nutrlan", "svd", "eigen", "primme", "rspectra")
   neig <- 10
   groups <- list(1, 2:3, 2:10)
   len <- 50
@@ -54,7 +54,7 @@ test_that("All svd.methods provides the same decomposition", {
   set.seed(1)
   Ns <- c(100, 200, 500)
   Ls <- c(70, 100, 200)
-  svd.methods <- c("propack", "nutrlan", "eigen")
+  svd.methods <- c("propack", "nutrlan", "eigen", "primme", "rspectra")
 
   row.projectors <- 0:5
   column.projectors <- 0:5
@@ -92,7 +92,7 @@ test_that("All svd.methods provides the same decomposition", {
 })
 
 test_that("PSSA reconstruct and predict finite rank series exactly", {
-  svd.methods <- c("propack", "nutrlan", "svd", "eigen")
+  svd.methods <- c("propack", "nutrlan", "svd", "eigen", "rspectra", "primme")
   N <- 500
   len <- 50
   tt <- seq_len(N + len) / sqrt(N + len)

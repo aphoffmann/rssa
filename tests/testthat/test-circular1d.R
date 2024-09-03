@@ -9,8 +9,9 @@ Ls <- c(3, 10, 17, 50, 371)
 
 F <- sin(ii)
 for (L in Ls) {
-  for (svd.method in c("eigen", "svd", "nutrlan", "propack")) {
-    if (identical(svd.method, "nutrlan") && L < 10)
+  for (svd.method in c("eigen", "svd", "nutrlan", "propack", "primme", "rspectra")) {
+    if (L < 10 &&
+        (svd.method %in% c("nutrlan", "rspectra")))
       svd.method <- "propack"
     ss <- ssa(F, L = L, circular = TRUE, kind = "toeplitz-ssa",
               svd.method = svd.method,

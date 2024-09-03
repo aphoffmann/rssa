@@ -13,7 +13,7 @@ L <- testcase$L
 len <- testcase$len
 
 test_that(sprintf("Real data MSSA reconstruction test (testcase: %s)", testcase.name), {
-for (svd.method in c("svd", "eigen", "nutrlan", "propack")) {
+for (svd.method in c("svd", "eigen", "nutrlan", "propack", "rspectra")) {
   L <- testcase$L
   s <- ssa(testcase$ssa.data, L = L, kind = "mssa",
            neig = 15,

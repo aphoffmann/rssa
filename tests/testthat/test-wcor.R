@@ -39,7 +39,7 @@ test_that("wcor method return correct matrix for 2dSSA case", {
               function(i, j) sin(2*pi * i/17) * cos(2*pi * j/7) + exp(i/25 - j/20)) +
         rnorm(50^2, sd = 0.1)
 
-  for (svd.method in c("nutrlan", "propack")) {
+  for (svd.method in c("nutrlan", "propack", "primme", "rspectra")) {
     s <- ssa(mx, kind = "2d-ssa", svd.method = svd.method)
     w <- wcor(s, groups = 1:12)
 

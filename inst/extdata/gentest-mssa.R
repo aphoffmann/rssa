@@ -78,5 +78,6 @@ list(L = L, len = len,
 })
 
 save(testcases,
-     file = system.file("extdata", "mssa.testdata.rda", package = "Rssa"),
+#     file = system.file("extdata", "mssa.testdata.rda", package = "Rssa"),
+     file = "mssa.testdata.rda",
      compress = "xz", compression_level = 9)

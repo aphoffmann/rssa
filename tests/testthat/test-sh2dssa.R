@@ -248,7 +248,7 @@ mx <- outer(1:50, 1:50,
 wmask <- matrix(TRUE, 20, 20)
 wmask[10:14, 9:10] <- FALSE
 
-for (svd.method in c("eigen", "svd", "nutrlan", "propack")) {
+for (svd.method in c("eigen", "svd", "nutrlan", "propack", "primme", "rspectra")) {
   # Decompose
   s <- ssa(mx, wmask = wmask, kind = "2d-ssa", neig = 5, svd.method = svd.method)
   # Reconstruct

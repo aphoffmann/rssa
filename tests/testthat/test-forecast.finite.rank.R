@@ -19,7 +19,7 @@ examples.mssa.dlen <- list(list(xs = list(cosine(N + len + 10, 30, 12), cosine(N
                            list(xs = list(cosine(N + len + 10, 30, 12), cosine(N + len, 30, 12, pi / 2)), mssa.dim = 2),
                            list(xs = list(cosine(N + len + 10, 30, 12), cosine(N + len, 20, 8,  pi / 4)), mssa.dim = 4))
 
-for (svd.method in c("svd", "eigen", "nutrlan", "propack")) {
+for (svd.method in c("svd", "eigen", "nutrlan", "propack", "primme", "rspectra")) {
   rec.all <- all.MSE(examples.all,
                      N = 1,
                      sigma = sigma,
