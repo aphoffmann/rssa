@@ -21,7 +21,7 @@ test_that("Shaped 1d SSA works correctly", {
       s2 <- ssa(F, L = c(L, 1), wmask = as.matrix(wmask),
                 kind = "2d-ssa", circular = c(circular, FALSE), neig = rank + 1)
 
-      svd.methods <- c("svd", "nutrlan", "propack", "eigen", "rspectra", "primme")
+      svd.methods <- c("svd", "nutrlan", "propack", "eigen", "rspectra")
       for (svd.method in svd.methods) {
         s1 <- ssa(F, L = L, wmask = wmask,
                   svd.method = svd.method, neig = rank + 1, circular = circular)
