@@ -2,7 +2,7 @@ library(testthat);
 library(Rssa);
 source(system.file("extdata", "common.test.methods.R", package = "Rssa"));
 
-all.svd <- c("svd", "eigen", "propack", "nutrlan")
+all.svd <- c("svd", "eigen", "propack", "nutrlan", "rspectra")
 svd.wo.nutrlan <- c("svd", "eigen", "propack")
 
 co2.td <- make.test.data(series = co2,
@@ -115,5 +115,6 @@ test.test.data(test.data = fr1k.nz.td);
 
 #save(co2.td, fr50.td, fr1k.td, fr50k.td, fr50.nz.td, fr1k.nz.td, fr50k.nz.td,
 save(co2.td, fr50.td, fr1k.td, fr50.nz.td, fr1k.nz.td,
-     file = system.file("extdata", "toeplitz.testdata.rda", package = "Rssa"),
+     # file = system.file("extdata", "toeplitz.testdata.rda", package = "Rssa"),
+     file = "toeplitz.testdata.rda",
      compress = "xz", compression_level = 9);

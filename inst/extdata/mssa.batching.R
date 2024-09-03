@@ -20,7 +20,7 @@ ssa.wrap <- function(xs, L, dim, svd.method = "eigen") {
   res
 }
 
-cssa.wrap <- function(xs, L, dim, svd.method = c("svd", "eigen", "propack", "nutrlan")) {
+cssa.wrap <- function(xs, L, dim, svd.method = c("svd", "eigen", "propack", "nutrlan", "rspectra", "primme")) {
   svd.method <-  match.arg(svd.method)
   # TODO fix SVD methods in package
   if (! svd.method %in% c("svd", "eigen"))

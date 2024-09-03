@@ -3,7 +3,7 @@ library(Rssa);
 
 compute.reconstructions <- function(x, Ls, groups,
                                     kind = c("1d-ssa", "toeplitz-ssa"),
-                                    svd.method = c("eigen", "propack", "nutrlan", "svd"),
+                                    svd.method = c("eigen", "propack", "nutrlan", "svd", "rspectra", "primme"),
                                     neig = max(unlist(groups)) + 1,
                                     column.projector = "none",
                                     row.projector = "none",
@@ -33,7 +33,7 @@ compute.forecasts <- function(x, Ls, groups, len,
                               kind = c("1d-ssa", "toeplitz-ssa"),
                               forecast.method = c("recurent", "vector"),
                               base = c("reconstructed", "original"),
-                              svd.method = c("eigen", "propack", "nutrlan", "svd"),
+                              svd.method = c("eigen", "propack", "nutrlan", "svd", "rspectra", "primme"),
                               neig = max(unlist(groups)) + 1,
                               column.projector = "none", row.projector = "none",
                               ...) {
@@ -75,11 +75,11 @@ make.test.data <- function(what = c("reconstruct", "rforecast", "vforecast"),
                            groups.forecast = groups,
                            len = 100,
                            kind = c("1d-ssa", "toeplitz-ssa"),
-                           svd.method = c("eigen", "propack", "svd", "nutrlan"),
+                           svd.method = c("eigen", "propack", "nutrlan", "svd", "rspectra", "primme"),
                            neig = NULL,
                            tolerance = 1e-7,
-                           svd.methods = c("eigen", "propack", "svd", "nutrlan"),
-                           svd.methods.forecast = c("eigen", "propack", "svd", "nutrlan"),
+                           svd.methods = c("eigen", "propack", "svd", "nutrlan", "rspectra", "primme"),
+                           svd.methods.forecast = c("eigen", "propack", "svd", "nutrlan", "rspectra", "primme"),
                            column.projector = "none",
                            row.projector = "none",
                            ...) {
@@ -95,8 +95,8 @@ make.test.data <- function(what = c("reconstruct", "rforecast", "vforecast"),
     svd.methods.forecast <- rep(list(svd.methods.forecast), length(Ls.forecast))
   }
 
-  svd.methods <- lapply(svd.methods, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan")))
-  svd.methods.forecast <- lapply(svd.methods.forecast, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan")))
+  svd.methods <- lapply(svd.methods, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan", "rspectra", "primme")))
+  svd.methods.forecast <- lapply(svd.methods.forecast, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan", "rspectra", "primme")))
 
   out <- list(series = series);
 
@@ -212,8 +212,8 @@ test.test.data <- function(what,
     svd.methods.forecast <- rep(list(svd.methods.forecast), length(Ls.forecast))
   }
 
-  svd.methods <- lapply(svd.methods, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan")))
-  svd.methods.forecast <- lapply(svd.methods.forecast, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan")))
+  svd.methods <- lapply(svd.methods, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan", "rspectra", "primme")))
+  svd.methods.forecast <- lapply(svd.methods.forecast, function(svd.methods.v) sapply(svd.methods.v, match.arg, choices = c("eigen", "propack", "svd", "nutrlan", "rspectra", "primme")))
 
 
   series <- test.data$series;
