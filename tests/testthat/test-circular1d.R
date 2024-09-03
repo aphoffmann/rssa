@@ -16,7 +16,7 @@ for (L in Ls) {
               svd.method = svd.method,
               neig = 3)
 
-    expect_true(sum(ss$lambda[-(1:2)]) < .Machine$double.eps^.25)
+    expect_true(sum(ss$sigma[-(1:2)]) < .Machine$double.eps^.25)
     expect_equal(reconstruct(ss, groups = list(1:2))$F1, F)
   }
 }

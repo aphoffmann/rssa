@@ -26,7 +26,7 @@ test_that("Serialization works correctly", {
 
       expect_equal(ss.uns$U, ss$U);
       expect_equal(ss.uns$V, ss$V);
-      expect_equal(ss.uns$lambda, ss$lambda);
+      expect_equal(ss.uns$sigma, ss$sigma);
 
       expect_equal(reconstruct(ss.uns, groups = groups), reconstruct(ss, groups = groups));
       expect_equal(rforecast(ss.uns, groups = groups, len = len, base = "original"),
@@ -65,7 +65,7 @@ test_that("Serialization works correctly for 2d SSA", {
 
       expect_equal(ss.uns$U, ss$U);
       expect_equal(ss.uns$V, ss$V);
-      expect_equal(ss.uns$lambda, ss$lambda);
+      expect_equal(ss.uns$sigma, ss$sigma);
 
       expect_equal(reconstruct(ss.uns, groups = groups), reconstruct(ss, groups = groups));
     }

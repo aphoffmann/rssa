@@ -226,7 +226,7 @@ test_that("Shaped SSA works like R code with random data", {
   # R decomposition
   shmat <- .sh2hbhmat(s)
   dec <- propack.svd(shmat, neig = 50)
-  expect_equal(s$lambda[1:30], dec$d[1:neig])
+  expect_equal(s$sigma[1:30], dec$d[1:neig])
 
   # R reconstruction
   rec.R <- lapply(1:neig, function(i) dec$d[i] * .hankelize.one.shaped2d.ssa(s, dec$u[, i], dec$v[, i]))
