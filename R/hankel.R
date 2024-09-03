@@ -243,7 +243,9 @@ decompose.ssa <- function(x,
     A <- function(x, args) ematmul(args, x)
     Atrans <- function(x, args) ematmul(args, x, transposed = TRUE)
     S <- RSpectra::svds(A, k = neig, Atrans = Atrans, dim = dim(h), args = h, ...)
-    .set.decomposition(x, sigma = S$d, U = S$u, V = S$v)
+    ## RSpectra sometimes returns unsorted results
+    idx <- order(S$d, decreasing = TRUE)
+    .set.decomposition(x, sigma = S$d[idx], U = S$u[, idx], V = S$v[, idx])
   } else if (identical(x$svd.method, "primme")) {
     if (!requireNamespace("PRIMME", quietly = TRUE))
         stop("PRIMME package is required for SVD method `primme'")

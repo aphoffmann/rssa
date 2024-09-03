@@ -99,7 +99,9 @@ decompose.toeplitz.ssa <- function(x,
     A <- function(x, args) ematmul(args, x)
     Atrans <- function(x, args) ematmul(args, x, transposed = TRUE)
     S <- RSpectra::svds(A, k = neig, Atrans = Atrans, dim = dim(h), args = h, ...)
-    U <- S$u
+    ## RSpectra sometimes returns unsorted results
+    idx <- order(S$d, decreasing = TRUE)
+    U <- S$u[, idx]
     lambda <- NULL
   } else if (identical(x$svd.method, "primme")) {
     if (!requireNamespace("PRIMME", quietly = TRUE))

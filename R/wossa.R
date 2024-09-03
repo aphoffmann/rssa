@@ -150,7 +150,9 @@ decompose.wossa <- function(x,
     Atrans <- function(x, args) ematmul(args, x, transposed = TRUE)
     S <- RSpectra::svds(A,
                         k = neig, Atrans = Atrans, dim = dim(h), args = h, ...)
-    oU <- S$u; oV <- S$v; osigma <- S$d
+    ## RSpectra sometimes returns unsorted results
+    idx <- order(S$d, decreasing = TRUE)
+    oU <- S$u[, idx]; oV <- S$v[, idx]; osigma <- S$d[idx]
   } else if (identical(x$svd.method, "primme")) {
     if (!requireNamespace("PRIMME", quietly = TRUE))
         stop("PRIMME package is requireNamespaced for SVD method `primme'")

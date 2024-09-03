@@ -151,8 +151,10 @@ decompose.pssa <- function(x,
     A <- function(x, args) ematmul(args, x)
     Atrans <- function(x, args) ematmul(args, x, transposed = TRUE)
     S <- RSpectra::svds(A, k = neig, Atrans = Atrans, dim = dim(h), args = h, ...)
+    ## RSpectra sometimes returns unsorted results
+    idx <- order(S$d, decreasing = TRUE)
     .set.decomposition(x,
-                       sigma = c(ssigma, S$d), U = cbind(sU, S$u), V = cbind(sV, S$v))
+                       sigma = c(ssigma, S$d[idx]), U = cbind(sU, S$u[, idx]), V = cbind(sV, S$v[, idx]))
   } else if (identical(x$svd.method, "primme")) {
     if (!requireNamespace("PRIMME", quietly = TRUE))
         stop("PRIMME package is requireNamespaced for SVD method `primme'")
