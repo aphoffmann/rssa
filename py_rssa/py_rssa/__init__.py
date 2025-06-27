@@ -1,5 +1,4 @@
 """Lightweight Python implementation of selected rssa routines."""
-
 from .parestimate import (
     roots2pars,
     parestimate_pairs,
@@ -16,7 +15,8 @@ from .ssa import (
     bforecast,
     forecast,
     hankel_weights,
-    igapfill
+    igapfill,
+    pssa, orthopoly
 )
 
 from .eossa import eossa
@@ -73,6 +73,13 @@ from .autossa import (
 
 __all__ = [
     "SSA",
+    "PartialSSA",
+    "ssa",
+    "pssa",
+    "orthopoly",
+    "datasets",
+    "hankel_mv",
+
     "ssa",
     "datasets",
     "hankel_mv",
