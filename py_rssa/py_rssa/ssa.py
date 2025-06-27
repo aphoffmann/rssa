@@ -65,3 +65,82 @@ def hankel_weights(L, K):
     for i in range(N):
         w[i] = min(i + 1, L, K, N - i)
     return w
+
+
+def igapfill(ssa_obj, groups, fill=None, tol=1e-6, maxiter=0,
+             norm=None, base="original"):
+    """Iterative gap filling using SSA reconstruction.
+
+    Parameters
+    ----------
+    ssa_obj : :class:`SSA`
+        Decomposition to use as a template. Only the window length from this
+        object is utilised.
+    groups : sequence of int
+        Indices of eigentriples to use for the final reconstruction. 1-based
+        indices are accepted for compatibility with the R implementation.
+    fill : float or array-like, optional
+        Initial values for the missing entries. If not provided the mean of the
+        series (ignoring NaNs) is used.
+    tol : float, optional
+        Tolerance for the iteration stopping criterion.
+    maxiter : int, optional
+        Maximum number of iterations. ``0`` means no limit.
+    norm : callable, optional
+        Function used to compute the distance between successive
+        approximations. Defaults to ``sqrt(max(x**2))``.
+    base : {"original", "reconstructed"}
+        Whether to return the reconstructed series itself or replace only the
+        missing entries in the original series.
+
+    Returns
+    -------
+    numpy.ndarray
+        Series with filled gaps.
+    """
+
+    x = np.asarray(ssa_obj.x, dtype=float)
+    groups = [g - 1 for g in groups]  # convert to zero based
+    q = max(groups) + 1
+
+    if norm is None:
+        def norm(v):
+            return np.sqrt(np.nanmax(v ** 2))
+
+    F = x.copy()
+    na_idx = np.isnan(F)
+
+    if fill is None:
+        fill_value = np.nanmean(F)
+    else:
+        fill_value = fill
+
+    if np.isscalar(fill_value):
+        F[na_idx] = fill_value
+    else:
+        fill_arr = np.asarray(fill_value)
+        F[na_idx] = fill_arr[na_idx]
+
+    it = 0
+    while True:
+        s = SSA(F, L=ssa_obj.L)
+        r = s.reconstruct(list(range(q)))
+        rF = F.copy()
+        rF[na_idx] = r[na_idx]
+
+        rss = norm(F - rF)
+        it += 1
+        if (maxiter > 0 and it >= maxiter) or rss < tol:
+            F = rF
+            break
+        F = rF
+
+    s_final = SSA(F, L=ssa_obj.L)
+    rec = s_final.reconstruct(groups)
+
+    if base == "reconstructed":
+        return rec
+
+    out = x.copy()
+    out[na_idx] = rec[na_idx]
+    return out
