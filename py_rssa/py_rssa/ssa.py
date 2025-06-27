@@ -173,3 +173,264 @@ def hankel_weights(L, K):
     for i in range(N):
         w[i] = min(i + 1, L, K, N - i)
     return w
+
+
+def igapfill(ssa_obj, groups, fill=None, tol=1e-6, maxiter=0,
+             norm=None, base="original"):
+    """Iterative gap filling using SSA reconstruction.
+
+    Parameters
+    ----------
+    ssa_obj : :class:`SSA`
+        Decomposition to use as a template. Only the window length from this
+        object is utilised.
+    groups : sequence of int
+        Indices of eigentriples to use for the final reconstruction. 1-based
+        indices are accepted for compatibility with the R implementation.
+    fill : float or array-like, optional
+        Initial values for the missing entries. If not provided the mean of the
+        series (ignoring NaNs) is used.
+    tol : float, optional
+        Tolerance for the iteration stopping criterion.
+    maxiter : int, optional
+        Maximum number of iterations. ``0`` means no limit.
+    norm : callable, optional
+        Function used to compute the distance between successive
+        approximations. Defaults to ``sqrt(max(x**2))``.
+    base : {"original", "reconstructed"}
+        Whether to return the reconstructed series itself or replace only the
+        missing entries in the original series.
+
+    Returns
+    -------
+    numpy.ndarray
+        Series with filled gaps.
+    """
+
+    x = np.asarray(ssa_obj.x, dtype=float)
+    groups = [g - 1 for g in groups]  # convert to zero based
+    q = max(groups) + 1
+
+    if norm is None:
+        def norm(v):
+            return np.sqrt(np.nanmax(v ** 2))
+
+    F = x.copy()
+    na_idx = np.isnan(F)
+
+    if fill is None:
+        fill_value = np.nanmean(F)
+    else:
+        fill_value = fill
+
+    if np.isscalar(fill_value):
+        F[na_idx] = fill_value
+    else:
+        fill_arr = np.asarray(fill_value)
+        F[na_idx] = fill_arr[na_idx]
+
+    it = 0
+    while True:
+        s = SSA(F, L=ssa_obj.L)
+        r = s.reconstruct(list(range(q)))
+        rF = F.copy()
+        rF[na_idx] = r[na_idx]
+
+        rss = norm(F - rF)
+        it += 1
+        if (maxiter > 0 and it >= maxiter) or rss < tol:
+            F = rF
+            break
+        F = rF
+
+    s_final = SSA(F, L=ssa_obj.L)
+    rec = s_final.reconstruct(groups)
+
+    if base == "reconstructed":
+        return rec
+
+    out = x.copy()
+    out[na_idx] = rec[na_idx]
+    return out
+
+def _lrr(U, reverse=False, eps=np.sqrt(np.finfo(float).eps)):
+    """Compute linear recurrence coefficients from column space ``U``.
+
+    Parameters
+    ----------
+    U : ndarray
+        Matrix of eigenvectors (``L x r``).
+    reverse : bool, optional
+        If ``True`` compute coefficients for reverse forecasting.
+    eps : float, optional
+        Numerical threshold for singularities.
+
+    Returns
+    -------
+    ndarray
+        Array of length ``L-1`` with linear recurrence coefficients.
+    """
+    if U.size == 0:
+        # Zero subspace, return trivial recurrence
+        return np.zeros(U.shape[0] - 1)
+
+    n = U.shape[0]
+    idx = n - 1 if not reverse else 0
+
+    # Projection of rows on the last (or first) row of U
+    lpf = np.sum(np.conj(U) * U[idx, :], axis=1)
+    divider = 1.0 - lpf[idx]
+    if abs(divider) < eps:
+        raise ValueError("Verticality coefficient equals to 1")
+
+    coeffs = np.delete(lpf, idx) / divider
+    return coeffs
+
+
+def _apply_lrr(F, lrr, steps, only_new=False, reverse=False):
+    """Apply linear recurrence relation to extend the sequence ``F``."""
+    F = np.asarray(F, dtype=float)
+    r = len(lrr)
+    if r > F.size:
+        raise ValueError("LRR order is larger than the series length")
+
+    ext = np.concatenate([F, np.zeros(steps)])
+
+    if not reverse:
+        for i in range(steps):
+            ext[len(F) + i] = np.dot(ext[len(F) + i - r:len(F) + i], lrr)
+        return ext[-steps:] if only_new else ext
+    else:
+        # reverse forecasting
+        ext = np.concatenate([np.zeros(steps), F])
+        for i in range(steps):
+            ext[steps - i - 1] = np.dot(ext[steps - i:steps - i + r], lrr)
+        return ext[:steps] if only_new else ext
+
+
+def rforecast(ssa_obj, groups=None, steps=1, base="reconstructed", only_new=False):
+    """Perform recurrent forecasting for :class:`SSA` object."""
+    if groups is None:
+        groups = list(range(len(ssa_obj.s)))
+
+    U = ssa_obj.U[:, groups]
+
+    lrr = _lrr(U)
+
+    if base == "reconstructed":
+        F = ssa_obj.reconstruct(groups)
+    else:
+        F = ssa_obj.x
+
+    return _apply_lrr(F, lrr, steps, only_new=only_new)
+
+
+def vforecast(ssa_obj, groups=None, steps=1, only_new=False):
+    """Perform vector forecasting for :class:`SSA` object.
+
+    This is a simplified implementation based on linear recurrence
+    relations and should provide results similar to the R version for
+    typical use cases.
+    """
+
+    # Vector forecasting in the R package relies on special shift
+    # matrices.  Here we approximate it using the linear recurrence
+    # derived from the selected eigentriples which usually gives
+    # comparable results for short horizons.
+
+    return rforecast(ssa_obj, groups=groups, steps=steps, base="reconstructed", only_new=only_new)
+
+
+def bforecast(ssa_obj, groups=None, steps=1, R=100, level=0.95,
+              method="recurrent", interval="prediction", only_new=True):
+    """Bootstrap forecast with confidence intervals.
+
+    Parameters
+    ----------
+    ssa_obj : :class:`SSA`
+        Decomposed SSA object.
+    groups : sequence, optional
+        Indices of eigentriples to use.  All are used by default.
+    steps : int, optional
+        Number of forecast steps.
+    R : int, optional
+        Number of bootstrap replications.
+    level : float, optional
+        Confidence level for the intervals.
+    method : {"recurrent", "vector"}
+        Forecasting method used for each bootstrap sample.
+    interval : {"prediction", "confidence"}
+        Type of interval to compute.
+    only_new : bool, optional
+        Whether to return only the forecasted values.
+
+    Returns
+    -------
+    dict
+        Dictionary containing forecast mean and bounds.
+    """
+
+    if groups is None:
+        groups = list(range(len(ssa_obj.s)))
+
+    rec = ssa_obj.reconstruct(groups)
+    resid = ssa_obj.x - rec
+
+    forecasts = np.empty((steps, R))
+    for i in range(R):
+        noise = np.random.choice(resid, size=resid.size, replace=True)
+        sample = rec + noise
+        sample_ssa = SSA(sample, L=ssa_obj.L)
+        if method == "vector":
+            fc = vforecast(sample_ssa, groups=groups, steps=steps, only_new=True)
+        else:
+            fc = rforecast(sample_ssa, groups=groups, steps=steps, only_new=True)
+        forecasts[:, i] = fc
+
+    mean_fc = forecasts.mean(axis=1)
+    lower = np.quantile(forecasts, (1 - level) / 2, axis=1)
+    upper = np.quantile(forecasts, 1 - (1 - level) / 2, axis=1)
+
+    if interval == "prediction":
+        err = np.random.choice(resid, size=(steps, R), replace=True)
+        lower = lower + np.quantile(err, (1 - level) / 2, axis=1)
+        upper = upper + np.quantile(err, 1 - (1 - level) / 2, axis=1)
+
+    result = {
+        "mean": mean_fc if only_new else None,
+        "lower": lower,
+        "upper": upper,
+    }
+    if not only_new:
+        base_series = rec if method == "recurrent" else rec
+        result["series"] = np.concatenate([base_series, mean_fc])
+
+    return result
+
+
+def forecast(ssa_obj, groups=None, steps=1, method="recurrent", **kwargs):
+    """Convenience wrapper for forecasting.
+
+    Parameters
+    ----------
+    ssa_obj : :class:`SSA`
+        Decomposed SSA object.
+    groups : sequence, optional
+        Indices of eigentriples to use.  All are used by default.
+    steps : int, optional
+        Number of forecast steps.
+    method : {"recurrent", "vector"}
+        Forecasting algorithm to use.
+
+    Returns
+    -------
+    numpy.ndarray
+        Forecasted series (original series extended by ``steps`` points).
+    """
+
+    if method == "vector":
+        f = vforecast(ssa_obj, groups=groups, steps=steps, only_new=False)
+    else:
+        f = rforecast(ssa_obj, groups=groups, steps=steps, base="reconstructed", only_new=False)
+    return f
+
