@@ -12,3 +12,4 @@ Usage example::
    s = SSA(x)
    recon = s.reconstruct([0])
    w = s.wcor()
+   n = wnorm(x)
