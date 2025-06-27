@@ -12,3 +12,4 @@ src/Makevars
 src/Rssa.so
 src/config.h
 src/symbols.rds
+py_rssa/tests/__pycache__/
