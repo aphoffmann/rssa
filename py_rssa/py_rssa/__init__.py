@@ -13,6 +13,9 @@ from .ssa import (
 
 from .eossa import eossa
 from .hankel import hankel_mv
+
+from .hmatr import hmatr, plot_hmatr
+
 from .gapfill import gapfill
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
@@ -38,6 +41,10 @@ from .autossa import (
 __all__ = [
     "SSA",
     "ssa",
+    "datasets",
+    "hankel_mv",
+    "hmatr",
+    "plot_hmatr",
     "eossa",
     "datasets",
     "hankel_mv",
