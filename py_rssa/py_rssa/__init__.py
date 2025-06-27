@@ -2,6 +2,11 @@
 
 from .ssa import SSA, ssa
 from .hankel import hankel_mv
+from .cadzow import cadzow
+from . import datasets
+
+__all__ = ["SSA", "ssa", "datasets", "hankel_mv", "cadzow"]
+
 from .autossa import (
     grouping_auto,
     grouping_auto_wcor,
