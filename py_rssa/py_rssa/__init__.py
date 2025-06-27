@@ -1,7 +1,7 @@
 """Lightweight Python implementation of selected rssa routines."""
 
 
-
+from .mssa import MSSA, mssa, reconstruct, gapfill, forecast
 from .ssa import (
     SSA,
     ssa,
@@ -14,7 +14,6 @@ from .ssa import (
 )
 
 from .eossa import eossa
-
 from .hankel import hankel_mv
 from .hbhankel import (
     convolution_dims,
@@ -84,5 +83,8 @@ __all__ = [
     "pgram",
     "plot_grouping_auto_wcor",
     "plot_grouping_auto_pgram",
+    "MSSA", 
+    "mssa",
+
 
 ]
