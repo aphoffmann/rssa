@@ -1,6 +1,7 @@
 """Lightweight Python implementation of selected rssa routines."""
 
 
+
 from .ssa import (
     SSA,
     ssa,
@@ -9,9 +10,11 @@ from .ssa import (
     bforecast,
     forecast,
     hankel_weights,
+    igapfill
 )
 
 from .eossa import eossa
+
 from .hankel import hankel_mv
 from .hbhankel import (
     convolution_dims,
