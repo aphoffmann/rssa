@@ -1,8 +1,17 @@
 """Lightweight Python implementation of selected rssa routines."""
 
 
+from .ssa import (
+    SSA,
+    ssa,
+    rforecast,
+    vforecast,
+    bforecast,
+    forecast,
+    hankel_weights,
+)
+
 from .eossa import eossa
-from .ssa import SSA, ssa, hankel_weights
 from .hankel import hankel_mv
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
@@ -33,7 +42,10 @@ __all__ = [
     "hankel_mv",
 
     "utils",
-
+    "rforecast",
+    "vforecast",
+    "bforecast",
+    "forecast",
     "chankelize", "chankelize_multi", "hankel_weights"
     "cadzow",
     "register_capability",
@@ -47,5 +59,3 @@ __all__ = [
     "plot_grouping_auto_wcor",
     "plot_grouping_auto_pgram",
 ]
-
-
