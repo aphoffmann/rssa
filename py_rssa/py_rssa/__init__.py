@@ -21,6 +21,13 @@ from .ssa import (
 
 from .eossa import eossa
 from .hankel import hankel_mv
+from .plotn import (
+    do_slice_array,
+    do_slice_reconstruction,
+    plot_nd_reconstruction,
+    plot_ssa_vectors_nd,
+)
+
 from .plot2 import plot_2d_reconstructions, plot_2d_vectors
 
 from .plot import (
@@ -44,6 +51,7 @@ from .hmatr import hmatr, plot_hmatr
 from .gapfill import gapfill
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
+
 from . import datasets
 from . import utils
 
@@ -68,6 +76,10 @@ __all__ = [
     "ssa",
     "datasets",
     "hankel_mv",
+    "do_slice_array",
+    "do_slice_reconstruction",
+    "plot_nd_reconstruction",
+    "plot_ssa_vectors_nd",
     "plot",
     "plot_values",
     "plot_vectors",
