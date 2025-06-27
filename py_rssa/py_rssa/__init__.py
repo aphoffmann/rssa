@@ -21,6 +21,7 @@ from .ssa import (
 
 from .eossa import eossa
 from .hankel import hankel_mv
+from .plot2 import plot_2d_reconstructions, plot_2d_vectors
 
 from .plot import (
     plot,
@@ -72,7 +73,12 @@ __all__ = [
     "plot_vectors",
     "plot_series",
     "plot_wcor",
-
+    "SSA",
+    "ssa",
+    "datasets",
+    "hankel_mv",
+    "plot_2d_reconstructions",
+    "plot_2d_vectors",
     "convolution_dims",
     "convolven",
     "factor_mask_2d",
