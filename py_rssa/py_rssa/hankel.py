@@ -1,20 +1,18 @@
 import numpy as np
 
-try:
-    from ._fast_hankel import hankel_mv as _hankel_mv
-    HAVE_FAST = True
-except Exception:  # pragma: no cover - fallback when extension missing
-    HAVE_FAST = False
-    def _hankel_mv(F, v):
-        N = len(F)
-        K = len(v)
-        L = N - K + 1
-        if L <= 0:
-            raise ValueError("Invalid dimensions")
-        F_freq = np.fft.rfft(F)
-        v_freq = np.fft.rfft(np.r_[v, np.zeros(L-1)])
-        res = np.fft.irfft(np.conj(v_freq) * F_freq)
-        return res[:L]
+
+def _hankel_mv(F, v):
+    """Internal FFT-based Hankel multiplication."""
+    N = len(F)
+    K = len(v)
+    L = N - K + 1
+    if L <= 0:
+        raise ValueError("Invalid dimensions")
+    M = 1 << ((N + K - 1).bit_length())
+    F_freq = np.fft.rfft(F, n=M)
+    V_freq = np.fft.rfft(np.r_[v[::-1], np.zeros(M - K)], n=M)
+    res = np.fft.irfft(F_freq * V_freq, n=M)
+    return res[K-1:K-1+L]
 
 
 def hankel_mv(F, v):
@@ -34,9 +32,6 @@ def hankel_mv(F, v):
     """
     F = np.asarray(F, dtype=float)
     v = np.asarray(v, dtype=float)
-    if HAVE_FAST:
-        return _hankel_mv(F, v)
-    else:
-        return _hankel_mv(F, v)  # fallback defined above
+    return _hankel_mv(F, v)
 
 

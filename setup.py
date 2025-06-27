@@ -1,14 +1,7 @@
-from setuptools import setup, Extension
-import numpy
+from setuptools import setup
 
-ext_modules = [
-    Extension(
-        'py_rssa._fast_hankel',
-        ['py_rssa/py_rssa/_fast_hankel.c'],
-        include_dirs=[numpy.get_include()],
-        libraries=['fftw3'],
-    )
-]
+
+ext_modules = []
 
 setup(
     name='py_rssa',
