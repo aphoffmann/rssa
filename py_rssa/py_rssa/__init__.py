@@ -21,6 +21,17 @@ from .ssa import (
 
 from .eossa import eossa
 from .hankel import hankel_mv
+
+from .toeplitz import (
+    Lcor,
+    ToeplitzMatrix,
+    new_tmat,
+    tcols,
+    trows,
+    is_tmat,
+    tmatmul,
+)
+
 from .plotn import (
     do_slice_array,
     do_slice_reconstruction,
@@ -52,6 +63,7 @@ from .gapfill import gapfill
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
 
+
 from . import datasets
 from . import utils
 
@@ -79,7 +91,6 @@ __all__ = [
     "orthopoly",
     "datasets",
     "hankel_mv",
-
     "ssa",
     "datasets",
     "hankel_mv",
@@ -92,10 +103,14 @@ __all__ = [
     "plot_vectors",
     "plot_series",
     "plot_wcor",
-    "SSA",
-    "ssa",
-    "datasets",
-    "hankel_mv",
+
+    "Lcor",
+    "ToeplitzMatrix",
+    "new_tmat",
+    "tcols",
+    "trows",
+    "is_tmat",
+    "tmatmul",
     "plot_2d_reconstructions",
     "plot_2d_vectors",
     "convolution_dims",
@@ -129,4 +144,5 @@ __all__ = [
     "plot_grouping_auto_pgram",
     "MSSA", 
     "mssa","cond", "pseudo_inverse", "orthogonalize", "svd_to_lrsvd", "owcor",
+
 ]
