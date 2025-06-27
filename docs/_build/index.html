@@ -1,0 +1,41 @@
+<html><head><title>Rssa Documentation</title></head><body><h1>Available Classes</h1><ul><li>ssa</li><li>1d.ssa</li><li>2d.ssa</li><li>nd.ssa</li><li>toeplitz.ssa</li><li>mssa</li><li>cssa</li><li>ossa</li><li>pssa</li><li>wossa</li><li>series.list</li><li>lrr</li><li>forecast</li><li>ssa.gaps</li><li>iossa.result</li><li>wcor.matrix</li><li>fdimpars.1d</li><li>fdimpars.nd</li><li>hmatr</li></ul><h1>Exported Functions</h1><ul><li>clone</li><li>decompose</li><li>reconstruct</li><li>nu</li><li>nv</li><li>nlambda</li><li>nsigma</li><li>nspecial</li><li>contributions</li><li>calc.v</li><li>precache</li><li>cleanup</li><li>ssa</li><li>wcor</li><li>wcor.default</li><li>hmatr</li><li>wnorm</li><li>hmatmul</li><li>hankel</li><li>hcols</li><li>hrows</li><li>is.hmat</li><li>hbhmatmul</li><li>hbhcols</li><li>hbhrows</li><li>is.hbhmat</li><li>tmatmul</li><li>tcols</li><li>trows</li><li>is.tmat</li><li>roots</li><li>rforecast</li><li>vforecast</li><li>bforecast</li><li>eossa</li><li>owcor</li><li>fossa</li><li>frobenius.cor</li><li>clplot</li><li>gapfill</li><li>summarize.gaps</li><li>grouping.auto.wcor</li><li>grouping.auto.pgram</li></ul><h2>Forecasting</h2><pre>s &lt;- ssa(co2)
+# Calculate 24-point forecast using first 6 components as a base
+f &lt;- forecast(s, groups = list(1:6), method = &quot;recurrent&quot;, bootstrap = TRUE, len = 24, R = 10)
+# Plot the result including the last 24 points of the series
+plot(f, include = 24, shadecols = &quot;green&quot;, type = &quot;l&quot;)
+# Use of predict() for prediction
+p &lt;- predict(s, groups = list(1:6), method = &quot;recurrent&quot;, len = 24)
+# Simple plotting
+plot(p, ylab = &quot;Forecasteed Values&quot;)</pre><h2>Recurrent Forecasting</h2><pre># Decompose &#x27;co2&#x27; series with default parameters
+s &lt;- ssa(co2)
+# Produce 24 forecasted values of the series using different sets of eigentriples
+# as a base space for the forecast.
+rfor &lt;- rforecast(s, groups = list(c(1,4), 1:4), len = 24, only.new=FALSE)
+matplot(data.frame(c(co2, rep(NA, 24)), rfor), type = &quot;l&quot;)
+# Forecast `co2&#x27; trend by SSA with projections
+s &lt;- ssa(co2, column.projector = 2, row.projector = 2)
+len &lt;- 100
+rfor &lt;- rforecast(s, groups = list(trend = seq_len(nspecial(s))), len = len, only.new = FALSE)
+matplot(data.frame(c(co2, rep(NA, len)), rfor), type = &quot;l&quot;)
+# Forecast finite rank series with polynomial component by SSA with projections
+v &lt;- 5000 * sin(2*pi / 13 * (1:100)) +  (1:100)^2 + 10000
+s &lt;- ssa(v, row.projector = 2, column.projector = 2)
+plot(rforecast(s, groups = list(all = 1:6), len = 100, only.new = FALSE), type = &quot;l&quot;)</pre><h2>Gap Filling</h2><pre># Produce series with gaps
+F &lt;- co2; F[100:200] &lt;- NA
+# Perform shaped SSA
+s &lt;- ssa(F, L = 72)
+# Fill in gaps using the trend and 2 periodicty components
+g &lt;- gapfill(s, groups = list(1:6))
+# Compare the result
+plot(g)
+lines(co2, col = &quot;red&quot;)</pre><h2>Iterative Gap Filling</h2><pre># Produce series with gaps
+F &lt;- co2; F[100:200] &lt;- NA
+# Perform shaped SSA
+s &lt;- ssa(F, L = 72)
+# Fill in gaps using the trend and 2 periodicty components
+# Due to trend, provide a linear filler to speedup the process
+fill &lt;- F; fill[100:200] &lt;- F[99] + (1:101)/101*(F[201] - F[99])
+g &lt;- igapfill(s, groups = list(1:6), fill = fill, maxit = 50)
+# Compare the result
+plot(g)
+lines(co2, col = &quot;red&quot;)</pre></body></html>
