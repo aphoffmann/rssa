@@ -5,6 +5,7 @@ from .parestimate import (
     parestimate_esprit,
     parestimate,
 
+
 from .ossa import cond, pseudo_inverse, orthogonalize, svd_to_lrsvd, owcor
 from .mssa import MSSA, mssa, reconstruct, gapfill, forecast
 from .ssa import (
@@ -16,7 +17,7 @@ from .ssa import (
     forecast,
     hankel_weights,
     igapfill,
-    pssa, orthopoly
+    pssa, orthopoly,wcor, wnorm
 )
 
 from .eossa import eossa
@@ -143,6 +144,6 @@ __all__ = [
     "plot_grouping_auto_wcor",
     "plot_grouping_auto_pgram",
     "MSSA", 
-    "mssa","cond", "pseudo_inverse", "orthogonalize", "svd_to_lrsvd", "owcor",
+    "mssa","cond", "pseudo_inverse", "orthogonalize", "svd_to_lrsvd", "owcor","wcor", "wnorm"
 
 ]

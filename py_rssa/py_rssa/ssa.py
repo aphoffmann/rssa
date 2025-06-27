@@ -209,6 +209,49 @@ def hankel_weights(L, K):
         w[i] = min(i + 1, L, K, N - i)
     return w
 
+def wnorm(x, *, L=None, weights=None):
+    """Weighted norm of a sequence.
+
+    Parameters
+    ----------
+    x : array_like
+        Input one-dimensional sequence.
+    L : int, optional
+        Window length used to derive Hankel weights when ``weights`` are not
+        provided. Defaults to ``(N + 1) // 2`` where ``N`` is the length of
+        ``x``.
+    weights : array_like, optional
+        Pre-computed Hankel weights of length ``N``.
+
+    Returns
+    -------
+    float
+        Weighted Euclidean norm of ``x``.
+    """
+    x = np.asarray(x)
+    N = x.size
+    if weights is None:
+        if L is None:
+            L = (N + 1) // 2
+        weights = hankel_weights(L, N - L + 1)
+    weights = np.asarray(weights)
+    if weights.size != N:
+        raise ValueError("weights length mismatch")
+    return float(np.sqrt(np.sum(weights * np.abs(x) ** 2)))
+
+
+def wcor(x, *, L=None, weights=None):
+    """Weighted correlation matrix for columns of ``x``.
+
+    Parameters
+    ----------
+    x : array_like, shape (N, M)
+        Matrix whose columns correspond to series to correlate.
+    L : int, optional
+        Window length used to compute Hankel weights when ``weights`` are not
+        supplied. Defaults to ``(N + 1) // 2``.
+    weights : array_like, optional
+        Pre-computed Hankel weights of length ``N``.
 
 def igapfill(ssa_obj, groups, fill=None, tol=1e-6, maxiter=0,
              norm=None, base="original"):
@@ -457,9 +500,34 @@ def forecast(ssa_obj, groups=None, steps=1, method="recurrent", **kwargs):
     method : {"recurrent", "vector"}
         Forecasting algorithm to use.
 
+
     Returns
     -------
     numpy.ndarray
+        ``M x M`` weighted correlation matrix.
+    """
+    x = np.asarray(x)
+    if x.ndim == 1:
+        x = x[:, None]
+    if x.ndim != 2:
+        raise ValueError("input must be 1-D or 2-D array")
+    N = x.shape[0]
+    if weights is None:
+        if L is None:
+            L = (N + 1) // 2
+        weights = hankel_weights(L, N - L + 1)
+    weights = np.asarray(weights)
+    if weights.size != N:
+        raise ValueError("weights length mismatch")
+
+    wx = weights[:, None] * np.conjugate(x)
+    cov = wx.T @ x
+    inv_norm = 1.0 / np.sqrt(np.abs(np.diag(cov)))
+    cor = inv_norm[:, None] * cov * inv_norm[None, :]
+    np.fill_diagonal(cor, 1.0)
+    cor = np.clip(cor.real, -1.0, 1.0)
+    return cor
+
         Forecasted series (original series extended by ``steps`` points).
     """
 
@@ -468,4 +536,5 @@ def forecast(ssa_obj, groups=None, steps=1, method="recurrent", **kwargs):
     else:
         f = rforecast(ssa_obj, groups=groups, steps=steps, base="reconstructed", only_new=False)
     return f
+
 
