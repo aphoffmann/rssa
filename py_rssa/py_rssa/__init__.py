@@ -13,6 +13,7 @@ from .ssa import (
 
 from .eossa import eossa
 from .hankel import hankel_mv
+from .gapfill import gapfill
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
 from . import datasets
@@ -40,7 +41,7 @@ __all__ = [
     "eossa",
     "datasets",
     "hankel_mv",
-
+    "gapfill",
     "utils",
     "rforecast",
     "vforecast",
