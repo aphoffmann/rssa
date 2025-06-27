@@ -1,5 +1,10 @@
 """Lightweight Python implementation of selected rssa routines."""
 
+from .parestimate import (
+    roots2pars,
+    parestimate_pairs,
+    parestimate_esprit,
+    parestimate,
 
 from .ossa import cond, pseudo_inverse, orthogonalize, svd_to_lrsvd, owcor
 from .mssa import MSSA, mssa, reconstruct, gapfill, forecast
@@ -15,7 +20,6 @@ from .ssa import (
 )
 
 from .eossa import eossa
-
 from .hankel import hankel_mv
 from .hbhankel import (
     convolution_dims,
@@ -86,7 +90,5 @@ __all__ = [
     "plot_grouping_auto_wcor",
     "plot_grouping_auto_pgram",
     "MSSA", 
-    "mssa","cond", "pseudo_inverse", "orthogonalize", "svd_to_lrsvd", "owcor"
-
-
+    "mssa","cond", "pseudo_inverse", "orthogonalize", "svd_to_lrsvd", "owcor",
 ]
