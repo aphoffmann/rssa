@@ -5,6 +5,9 @@ from .hankel import hankel_mv
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
 from . import datasets
+
+from . import utils
+
 from .capabilities import (
     register_capability,
     capable,
@@ -20,11 +23,15 @@ from .autossa import (
     plot_grouping_auto_pgram,
 )
 
+
 __all__ = [
     "SSA",
     "ssa",
     "datasets",
     "hankel_mv",
+
+    "utils",
+
     "chankelize", "chankelize_multi", "hankel_weights"
     "cadzow",
     "register_capability",
@@ -38,3 +45,4 @@ __all__ = [
     "plot_grouping_auto_wcor",
     "plot_grouping_auto_pgram",
 ]
+
