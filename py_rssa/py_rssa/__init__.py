@@ -21,6 +21,14 @@ from .ssa import (
 
 from .eossa import eossa
 from .hankel import hankel_mv
+
+from .plot import (
+    plot,
+    plot_values,
+    plot_vectors,
+    plot_series,
+    plot_wcor,
+
 from .hbhankel import (
     convolution_dims,
     convolven,
@@ -35,7 +43,6 @@ from .hmatr import hmatr, plot_hmatr
 from .gapfill import gapfill
 from .chankel import chankel_mv, chankelize, chankelize_multi
 from .cadzow import cadzow
-
 from . import datasets
 from . import utils
 
@@ -60,6 +67,12 @@ __all__ = [
     "ssa",
     "datasets",
     "hankel_mv",
+    "plot",
+    "plot_values",
+    "plot_vectors",
+    "plot_series",
+    "plot_wcor",
+
     "convolution_dims",
     "convolven",
     "factor_mask_2d",
