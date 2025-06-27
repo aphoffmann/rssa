@@ -46,7 +46,9 @@ def orthopoly(d, L):
 
 
 class SSA:
-    """Very small subset of the R `ssa` functionality."""
+
+    """Simple SSA implementation mirroring ``rssa::ssa`` core features."""
+
 
     def __init__(self, x, L=None):
         self.x = np.asarray(x, dtype=float)
@@ -55,6 +57,7 @@ class SSA:
             L = (N + 1) // 2
         self.L = L
         self.K = N - L + 1
+
         # trajectory matrix
         self.X = np.column_stack([self.x[i : i + L] for i in range(self.K)])
         self.U, s, self.Vt = svd(self.X, full_matrices=False)
@@ -96,6 +99,38 @@ class SSA:
                 c = num / den if den != 0 else 0.0
                 res[i, j] = res[j, i] = c
         return res
+
+    # ------------------------------------------------------------------
+    # Helper methods replicating rssa functionality
+
+    def wnorm(self):
+        """Weighted norm of the original series."""
+        w = hankel_weights(self.L, self.K)
+        return np.sqrt(np.sum(w * self.x ** 2))
+
+    def contributions(self, indices=None):
+        """Return relative contribution of selected eigentriples."""
+        if indices is None:
+            indices = range(len(self.s))
+        sigma = self.s[indices]
+        return sigma ** 2 / (self.wnorm() ** 2)
+
+    def residuals(self, indices=None):
+        """Return residuals after reconstructing selected components."""
+        if indices is None:
+            indices = range(len(self.s))
+        rec = self.reconstruct(indices)
+        return self.x - rec
+
+    # Simple accessors mirroring rssa helpers
+    def nu(self):
+        return self.U.shape[1]
+
+    def nv(self):
+        return self.Vt.shape[0]
+
+    def nsigma(self):
+        return self.s.size
 
 
 class PartialSSA(SSA):
