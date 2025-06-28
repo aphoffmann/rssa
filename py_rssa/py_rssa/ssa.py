@@ -6,7 +6,11 @@ from numpy.linalg import svd, qr
 class SSA:
     """Simple SSA implementation mirroring ``rssa::ssa`` core features."""
     def __init__(self, x, L=None):
-        self.x = np.asarray(x, dtype=float)
+        raw_x = np.asarray(x, dtype=float)
+        if np.isnan(raw_x).any():
+            fill = np.nanmean(raw_x)
+            raw_x = np.nan_to_num(raw_x, nan=fill)
+        self.x = raw_x
         N = self.x.size
         if L is None:
             L = (N + 1) // 2
@@ -545,37 +549,34 @@ def bforecast(ssa_obj, groups=None, steps=1, R=100, level=0.95,
     return result
 
 
-def forecast(ssa_obj, groups=None, steps=1, method="recurrent", weights = None, **kwargs):
-    """Convenience wrapper for forecasting.
+def wcor(x, *, L=None, weights=None):
+    """Weighted correlation matrix for a series or matrix.
 
     Parameters
     ----------
-    ssa_obj : :class:`SSA`
-        Decomposed SSA object.
-    groups : sequence, optional
-        Indices of eigentriples to use.  All are used by default.
-    steps : int, optional
-        Number of forecast steps.
-    method : {"recurrent", "vector"}
-        Forecasting algorithm to use.
+    x : array_like
+        Real or complex series (``N``) or matrix (``N x M``).
+    L : int, optional
+        Window length used to compute default Hankel weights.
+        Defaults to ``(N + 1) // 2`` if not provided.
+    weights : array_like, optional
+        Pre-computed Hankel weights.
 
 
     Returns
     -------
     numpy.ndarray
-        ``M x M`` weighted correlation matrix.
+        Weighted correlation matrix.
     """
-    x = np.asarray(ssa_obj.x)
+    x = np.asarray(x)
     if x.ndim == 1:
         x = x[:, None]
     if x.ndim != 2:
         raise ValueError("input must be 1-D or 2-D array")
     N = x.shape[0]
     if weights is None:
-        if ssa_obj.L is None:
+        if L is None:
             L = (N + 1) // 2
-        else:
-            L = ssa_obj.L
         weights = hankel_weights(L, N - L + 1)
     weights = np.asarray(weights)
     if weights.size != N:
@@ -588,3 +589,13 @@ def forecast(ssa_obj, groups=None, steps=1, method="recurrent", weights = None, 
     np.fill_diagonal(cor, 1.0)
     cor = np.clip(cor.real, -1.0, 1.0)
     return cor
+
+
+def forecast(ssa_obj, groups=None, steps=1, method="recurrent", only_new=False):
+    """Convenience wrapper for forecasting."""
+    if method not in {"recurrent", "vector"}:
+        raise ValueError("method must be 'recurrent' or 'vector'")
+    if method == "recurrent":
+        return rforecast(ssa_obj, groups=groups, steps=steps, only_new=only_new)
+    else:
+        return vforecast(ssa_obj, groups=groups, steps=steps, only_new=only_new)

@@ -14,6 +14,7 @@ from .ssa import (
     bforecast,
     forecast,
     igapfill,
+    wcor,
     wnorm,
 )
 
@@ -102,6 +103,8 @@ __all__ = [
     "reconstruct",
     "gapfill",
     "mssa_gapfill",
+    "wcor",
+    "wnorm",
     "forecast",
     "mssa_forecast",
     "rforecast",
