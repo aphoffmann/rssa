@@ -2,54 +2,9 @@ import numpy as np
 from numpy.linalg import svd, qr
 
 
-def orthopoly(d, L):
-    """Generate orthonormal polynomial basis of degree ``d``.
-
-    Parameters
-    ----------
-    d : int or str
-        Degree of the polynomial or one of ``"none"``, ``"constant"``,
-        ``"centering"``, ``"linear"``, ``"quadratic"`` or ``"qubic"``.
-    L : int
-        Length of the window.
-
-    Returns
-    -------
-    numpy.ndarray
-        Matrix of shape ``(L, d)`` whose columns form an orthonormal basis
-        for the requested polynomial space.  If ``d`` is ``0`` or ``"none"``
-        an empty array with zero columns is returned.
-    """
-
-    if isinstance(d, str):
-        mapping = {
-            "none": 0,
-            "constant": 1,
-            "centering": 1,
-            "linear": 2,
-            "quadratic": 3,
-            "qubic": 4,
-        }
-        d = mapping[d]
-
-    if d == 0:
-        return np.empty((L, 0))
-    if d == 1:
-        return np.full((L, 1), 1.0 / np.sqrt(L))
-
-    x = np.arange(1, L + 1)
-    # NumPy's ``poly`` is different from R's ``poly`` so we simply build a
-    # Vandermonde matrix and orthonormalise it.
-    M = np.column_stack([x**i for i in range(d)])
-    Q, _ = qr(M)
-    return Q
-
 
 class SSA:
-
     """Simple SSA implementation mirroring ``rssa::ssa`` core features."""
-
-
     def __init__(self, x, L=None):
         self.x = np.asarray(x, dtype=float)
         N = self.x.size
@@ -132,7 +87,6 @@ class SSA:
     def nsigma(self):
         return self.s.size
 
-
 class PartialSSA(SSA):
     """Projection SSA.
 
@@ -190,24 +144,6 @@ class PartialSSA(SSA):
         self.X = X
         self.U, s, self.Vt = svd(self.X, full_matrices=False)
         self.s = s
-
-
-def ssa(x, L=None):
-    """Convenience function returning :class:`SSA`."""
-    return SSA(x, L=L)
-
-
-def pssa(x, L=None, *, column_proj=None, row_proj=None):
-    """Convenience function returning :class:`PartialSSA`."""
-    return PartialSSA(x, L=L, column_proj=column_proj, row_proj=row_proj)
-
-
-def hankel_weights(L, K):
-    N = L + K - 1
-    w = np.zeros(N, dtype=float)
-    for i in range(N):
-        w[i] = min(i + 1, L, K, N - i)
-    return w
 
 class WOSSA(SSA):
     """Weighted (windowed) Oblique SSA for 1D series."""
@@ -284,6 +220,63 @@ class WOSSA(SSA):
             recon += s[col] * self._hankelize_one(uc, vc)
         return recon / weights
 
+def orthopoly(d, L):
+    """Generate orthonormal polynomial basis of degree ``d``.
+
+    Parameters
+    ----------
+    d : int or str
+        Degree of the polynomial or one of ``"none"``, ``"constant"``,
+        ``"centering"``, ``"linear"``, ``"quadratic"`` or ``"qubic"``.
+    L : int
+        Length of the window.
+
+    Returns
+    -------
+    numpy.ndarray
+        Matrix of shape ``(L, d)`` whose columns form an orthonormal basis
+        for the requested polynomial space.  If ``d`` is ``0`` or ``"none"``
+        an empty array with zero columns is returned.
+    """
+
+    if isinstance(d, str):
+        mapping = {
+            "none": 0,
+            "constant": 1,
+            "centering": 1,
+            "linear": 2,
+            "quadratic": 3,
+            "qubic": 4,
+        }
+        d = mapping[d]
+
+    if d == 0:
+        return np.empty((L, 0))
+    if d == 1:
+        return np.full((L, 1), 1.0 / np.sqrt(L))
+
+    x = np.arange(1, L + 1)
+    # NumPy's ``poly`` is different from R's ``poly`` so we simply build a
+    # Vandermonde matrix and orthonormalise it.
+    M = np.column_stack([x**i for i in range(d)])
+    Q, _ = qr(M)
+    return Q
+
+def ssa(x, L=None):
+    """Convenience function returning :class:`SSA`."""
+    return SSA(x, L=L)
+
+def pssa(x, L=None, *, column_proj=None, row_proj=None):
+    """Convenience function returning :class:`PartialSSA`."""
+    return PartialSSA(x, L=L, column_proj=column_proj, row_proj=row_proj)
+
+def hankel_weights(L, K):
+    N = L + K - 1
+    w = np.zeros(N, dtype=float)
+    for i in range(N):
+        w[i] = min(i + 1, L, K, N - i)
+    return w
+
 
 def wossa(x, L=None, column_oblique=None, row_oblique=None):
     """Convenience function returning :class:`WOSSA`."""
@@ -318,20 +311,6 @@ def wnorm(x, *, L=None, weights=None):
     if weights.size != N:
         raise ValueError("weights length mismatch")
     return float(np.sqrt(np.sum(weights * np.abs(x) ** 2)))
-
-
-def wcor(x, *, L=None, weights=None):
-    """Weighted correlation matrix for columns of ``x``.
-
-    Parameters
-    ----------
-    x : array_like, shape (N, M)
-        Matrix whose columns correspond to series to correlate.
-    L : int, optional
-        Window length used to compute Hankel weights when ``weights`` are not
-        supplied. Defaults to ``(N + 1) // 2``.
-    weights : array_like, optional
-        Pre-computed Hankel weights of length ``N``.
 
 def igapfill(ssa_obj, groups, fill=None, tol=1e-6, maxiter=0,
              norm=None, base="original"):
@@ -566,7 +545,7 @@ def bforecast(ssa_obj, groups=None, steps=1, R=100, level=0.95,
     return result
 
 
-def forecast(ssa_obj, groups=None, steps=1, method="recurrent", **kwargs):
+def forecast(ssa_obj, groups=None, steps=1, method="recurrent", weights = None, **kwargs):
     """Convenience wrapper for forecasting.
 
     Parameters
@@ -586,15 +565,17 @@ def forecast(ssa_obj, groups=None, steps=1, method="recurrent", **kwargs):
     numpy.ndarray
         ``M x M`` weighted correlation matrix.
     """
-    x = np.asarray(x)
+    x = np.asarray(ssa_obj.x)
     if x.ndim == 1:
         x = x[:, None]
     if x.ndim != 2:
         raise ValueError("input must be 1-D or 2-D array")
     N = x.shape[0]
     if weights is None:
-        if L is None:
+        if ssa_obj.L is None:
             L = (N + 1) // 2
+        else:
+            L = ssa_obj.L
         weights = hankel_weights(L, N - L + 1)
     weights = np.asarray(weights)
     if weights.size != N:
@@ -607,15 +588,3 @@ def forecast(ssa_obj, groups=None, steps=1, method="recurrent", **kwargs):
     np.fill_diagonal(cor, 1.0)
     cor = np.clip(cor.real, -1.0, 1.0)
     return cor
-
-        Forecasted series (original series extended by ``steps`` points).
-    """
-
-    if method == "vector":
-        f = vforecast(ssa_obj, groups=groups, steps=steps, only_new=False)
-    else:
-        f = rforecast(ssa_obj, groups=groups, steps=steps, base="reconstructed", only_new=False)
-    return f
-
-
-

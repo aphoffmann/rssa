@@ -93,7 +93,7 @@ def _plot_2d_reconstruction(rec, *, add_original=True, add_residuals=True, cmap=
         axes[idx].set_title("Residuals")
     return fig, axes
 
-def plot_nd_reconstruction(recon: Mapping[str, Any], slice: Mapping[str, Any] | None = None, **kwargs):
+def plot_nd_reconstruction(recon, slice, **kwargs):
     """Plot a (possibly sliced) reconstruction dictionary.
 
     Parameters
@@ -111,7 +111,7 @@ def plot_nd_reconstruction(recon: Mapping[str, Any], slice: Mapping[str, Any] | 
         return _plot_2d_reconstruction(rec, **kwargs)
     raise ValueError("Cannot display array of rank higher than 2")
 
-def plot_ssa_vectors_nd(ssa, slice: Mapping[str, Any] | None = None, *, what="eigen", idx: Sequence[int] = (0,)):
+def plot_ssa_vectors_nd(ssa, slice, *, what="eigen", idx: Sequence[int] = (0,)):
     """Visualize eigenvectors or factor vectors from an ``SSA`` object.
 
     This is a very small subset of the R ``plotn`` functionality and works for
