@@ -13,3 +13,4 @@ src/Rssa.so
 src/config.h
 src/symbols.rds
 py_rssa/tests/__pycache__/
+/.vscode
