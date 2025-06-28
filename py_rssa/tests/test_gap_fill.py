@@ -1,12 +1,10 @@
-import pytest
+import numpy as np
+from py_rssa import ssa, gapfill
 
-np = pytest.importorskip('numpy')
-py_rssa = pytest.importorskip('py_rssa')
-
-
+# Failed SVD did not converge
 def test_gap_fill():
     data = np.sin(np.linspace(0, 2 * np.pi, 60))
     data[10] = np.nan
-    ss = py_rssa.ssa(data, L=20)
-    filled = py_rssa.gapfill(ss, groups=[1])
+    ss = ssa(data, L=20)
+    filled = gapfill(ss, groups=[1])
     assert not np.isnan(filled[10])

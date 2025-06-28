@@ -1,9 +1,5 @@
-import pytest
-
-np = pytest.importorskip("numpy")
-py_rssa = pytest.importorskip("py_rssa")
-
-
+import numpy as np
+import py_rssa
 def test_pssa_basic_equivalence():
     data = np.sin(np.linspace(0, 2 * np.pi, 40))
     s1 = py_rssa.pssa(data, L=20, column_proj="centering")

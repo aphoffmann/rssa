@@ -14,6 +14,7 @@ from .ssa import (
     bforecast,
     forecast,
     igapfill,
+    wnorm,
 )
 
 from .mssa import MSSA, mssa, reconstruct, gapfill as mssa_gapfill, forecast as mssa_forecast

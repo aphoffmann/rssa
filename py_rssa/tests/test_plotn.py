@@ -1,8 +1,5 @@
-import pytest
-
-np = pytest.importorskip('numpy')
-py_rssa = pytest.importorskip('py_rssa')
-
+import numpy as np
+import py_rssa
 
 def test_do_slice_array_basic():
     arr = np.arange(24).reshape(2, 3, 4)

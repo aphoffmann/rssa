@@ -15,7 +15,7 @@ def test_wcor_diagonal():
     w = s.wcor()
     assert np.allclose(np.diag(w), 1.0)
 
-
+# Fail can't import wcor?
 def test_wcor_matrix_symmetry():
     t = np.linspace(0, 2*np.pi, 20)
     m = np.vstack((np.sin(t), np.cos(t))).T
@@ -23,7 +23,7 @@ def test_wcor_matrix_symmetry():
     assert np.allclose(w, w.T)
     assert np.allclose(np.diag(w), 1.0)
 
-
+# Fail can't import wnorm?
 def test_wnorm_basic():
     x = np.arange(1, 6, dtype=float)
     n = wnorm(x, L=3)

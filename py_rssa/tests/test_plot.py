@@ -1,8 +1,5 @@
-import pytest
-
-np = pytest.importorskip("numpy")
-plt = pytest.importorskip("matplotlib.pyplot")
-
+import numpy as np
+import matplotlib.pyplot as plt
 from py_rssa import SSA, plot_values, plot_vectors, plot_series, plot_wcor
 
 
