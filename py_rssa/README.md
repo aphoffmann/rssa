@@ -1,5 +1,9 @@
 # py_rssa
 
-This is a partial Python reimplementation of the `rssa` package. It now
-includes a pure Python Hankel helper and exposes basic ``ssa``,
-``reconstruct``, ``wcor`` and ``wnorm`` capabilities.
+This project provides a lightweight Python port of the `rssa` package.
+Alongside the original one-dimensional routines it now includes:
+
+* ``cssa`` for complex valued series.
+* ``NDSSA``/``ndssa`` supporting arbitrary dimensional data and shaped
+  window masks.
+* Pure Python Hankel helpers and utilities such as ``wcor`` and ``wnorm``.

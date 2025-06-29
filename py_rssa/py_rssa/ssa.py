@@ -6,11 +6,12 @@ from numpy.linalg import svd, qr
 class SSA:
     """Simple SSA implementation mirroring ``rssa::ssa`` core features."""
     def __init__(self, x, L=None):
-        raw_x = np.asarray(x, dtype=float)
+        raw_x = np.asarray(x)
+        dtype = complex if np.iscomplexobj(raw_x) else float
         if np.isnan(raw_x).any():
             fill = np.nanmean(raw_x)
             raw_x = np.nan_to_num(raw_x, nan=fill)
-        self.x = raw_x
+        self.x = raw_x.astype(dtype)
         N = self.x.size
         if L is None:
             L = (N + 1) // 2
@@ -32,7 +33,7 @@ class SSA:
         N = self.x.size
         L = self.L
         K = self.K
-        recon = np.zeros(N)
+        recon = np.zeros(N, dtype=self.x.dtype)
         counts = np.zeros(N)
         for i in range(L):
             for j in range(K):
@@ -65,7 +66,7 @@ class SSA:
     def wnorm(self):
         """Weighted norm of the original series."""
         w = hankel_weights(self.L, self.K)
-        return np.sqrt(np.sum(w * self.x ** 2))
+        return np.sqrt(np.sum(w * np.abs(self.x) ** 2))
 
     def contributions(self, indices=None):
         """Return relative contribution of selected eigentriples."""
@@ -285,6 +286,10 @@ def hankel_weights(L, K):
 def wossa(x, L=None, column_oblique=None, row_oblique=None):
     """Convenience function returning :class:`WOSSA`."""
     return WOSSA(x, L=L, column_oblique=column_oblique, row_oblique=row_oblique)
+
+def cssa(x, L=None):
+    """Convenience function for complex SSA."""
+    return SSA(x, L=L)
 
 def wnorm(x, *, L=None, weights=None):
     """Weighted norm of a sequence.

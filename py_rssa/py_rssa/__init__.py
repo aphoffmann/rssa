@@ -4,6 +4,7 @@ from .ssa import (
     SSA,
     PartialSSA,
     WOSSA,
+    cssa,
     ssa,
     pssa,
     wossa,
@@ -19,6 +20,7 @@ from .ssa import (
 )
 
 from .mssa import MSSA, mssa, reconstruct, gapfill as mssa_gapfill, forecast as mssa_forecast
+from .ndssa import NDSSA, ndssa
 from .gapfill import gapfill
 from .ossa import cond, pseudo_inverse, orthogonalize, svd_to_lrsvd, owcor
 from .eossa import eossa
@@ -78,8 +80,11 @@ __all__ = [
     "SSA",
     "PartialSSA",
     "WOSSA",
+    "NDSSA",
+    "cssa",
     "MSSA",
     "ssa",
+    "ndssa",
     "pssa",
     "wossa",
     "orthopoly",
